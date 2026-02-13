@@ -1,25 +1,25 @@
 # File Parser & Summary Generator - Background Processing
 
-FastAPI aplikasi untuk parsing dan generate ringkasan dari berbagai jenis file (SQL, JSON, TXT, CSV) dengan background processing dan job ID tracking.
+FastAPI application for parsing and generating summaries from various file types (SQL, JSON, TXT, CSV) with background processing and job ID tracking.
 
-## Fitur Utama
+## Main Features
 
-- Background processing - file diproses secara asynchronous
-- Job ID tracking - lacak status proses dengan unique ID
-- Progress tracking - pantau tahapan proses (reading, parsing, generating_summary)
-- **SQL Parser**: Ekstrak struktur tabel dan query utama
-- **JSON Parser**: Baca struktur data, cari field utama
-- **TXT Parser**: Deteksi tipe file, cari pola penting (error, success, dll)
-- **CSV Parser**: Baca header, hitung baris, cek kolom utama
-- Ringkasan otomatis dalam format JSON
+- **Background processing** - files are processed asynchronously
+- **Job ID tracking** - track process status with unique ID
+- **Progress tracking** - monitor process stages (reading, parsing, generating_summary)
+- **SQL Parser**: Extract table structures and main queries
+- **JSON Parser**: Read data structures, find key fields
+- **TXT Parser**: Detect file types, find important patterns (error, success, etc.)
+- **CSV Parser**: Read headers, count rows, check main columns
+- Automatic summary in JSON format
 
-## Instalasi
+## Installation
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Menjalankan Server
+## Running the Server
 
 ```bash
 # Development mode (auto-reload)
@@ -29,7 +29,7 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8001
 uvicorn main:app --host 0.0.0.0 --port 8001
 ```
 
-API akan tersedia di: `http://localhost:8001`
+API will be available at: `http://localhost:8001`
 
 ## API Endpoints
 
@@ -40,14 +40,14 @@ POST /parse-file
 ```
 
 **Request (multipart/form-data):**
-- `file`: File (SQL, JSON, TXT, atau CSV)
+- `file`: File (SQL, JSON, TXT, or CSV)
 
 **Response:**
 ```json
 {
   "job_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   "status": "pending",
-  "message": "File 'data.csv' diterima. Sedang diproses."
+  "message": "File 'data.csv' received. Processing..."
 }
 ```
 
@@ -70,7 +70,7 @@ GET /jobs/{job_id}
   "completed_at": null,
   "progress": {
     "stage": "parsing",
-    "message": "MemParsing file CSV..."
+    "message": "Parsing CSV file..."
   }
 }
 ```
@@ -88,13 +88,13 @@ GET /jobs/{job_id}
   "completed_at": "2025-01-15T10:30:05",
   "progress": {
     "stage": "completed",
-    "message": "Proses selesai!"
+    "message": "Process completed!"
   },
   "result": {
     "filename": "data.csv",
     "file_type": "csv",
     "size_kb": 45.2,
-    "summary": "File CSV 'data.csv' (45.2 KB). Berisi 1,000 baris data dengan 8 kolom...",
+    "summary": "CSV file 'data.csv' (45.2 KB). Contains 1,000 rows of data with 8 columns...",
     "key_info": {
       "rows": 1000,
       "columns": 8,
@@ -125,11 +125,11 @@ GET /health
 ## Progress Stages
 
 ```
-pending → reading → parsing → generating_summary → completed
-                                                    ↘ failed
+pending -> reading -> parsing -> generating_summary -> completed
+                                                    -> failed
 ```
 
-## Contoh Penggunaan
+## Usage Examples
 
 ### 1. Upload File & Get Job ID
 
@@ -143,7 +143,7 @@ curl -X POST "http://localhost:8001/parse-file" \
 {
   "job_id": "abc-123-def-456",
   "status": "pending",
-  "message": "File 'data.csv' diterima. Sedang diproses."
+  "message": "File 'data.csv' received. Processing..."
 }
 ```
 
@@ -210,7 +210,7 @@ const pollStatus = async () => {
 pollStatus();
 ```
 
-## Contoh Response Per Tipe File
+## Example Responses by File Type
 
 ### SQL File
 
@@ -219,7 +219,7 @@ pollStatus();
   "filename": "schema.sql",
   "file_type": "sql",
   "size_kb": 4.2,
-  "summary": "File SQL 'schema.sql' (4.2 KB). Berisi 15 query SQL dengan 3 tabel yang ditemukan. Terdapat transaksi database.",
+  "summary": "SQL file 'schema.sql' (4.2 KB). Contains 15 SQL queries with 3 tables found. Database transactions present.",
   "key_info": {
     "tables_found": ["users", "products", "orders"],
     "tables_count": 3,
@@ -241,7 +241,7 @@ pollStatus();
   "filename": "users.json",
   "file_type": "json",
   "size_kb": 2.1,
-  "summary": "File JSON 'users.json' (2.1 KB). Struktur data berupa array. Berisi 50 record. Field utama: id, name, email, status.",
+  "summary": "JSON file 'users.json' (2.1 KB). Data structure is an array. Contains 50 records. Key fields: id, name, email, status.",
   "key_info": {
     "structure_type": "array",
     "record_count": 50,
@@ -257,7 +257,7 @@ pollStatus();
   "filename": "app.log",
   "file_type": "txt",
   "size_kb": 8.5,
-  "summary": "File TXT 'app.log' (8.5 KB). Terdeteksi sebagai log_file. Berisi 150 baris teks. Kata kunci: error(3), success(10), warning(5).",
+  "summary": "TXT file 'app.log' (8.5 KB). Detected as log_file. Contains 150 lines of text. Keywords: error(3), success(10), warning(5).",
   "key_info": {
     "detected_type": "log_file",
     "total_lines": 150,
@@ -285,7 +285,7 @@ pollStatus();
   "filename": "sales.csv",
   "file_type": "csv",
   "size_kb": 45.2,
-  "summary": "File CSV 'sales.csv' (45.2 KB). Berisi 1,000 baris data dengan 8 kolom. Kolom utama: product_id, product_name, quantity, price, total.",
+  "summary": "CSV file 'sales.csv' (45.2 KB). Contains 1,000 rows of data with 8 columns. Main columns: product_id, product_name, quantity, price, total.",
   "key_info": {
     "rows": 1000,
     "columns": 8,
@@ -297,10 +297,24 @@ pollStatus();
 }
 ```
 
-## Catatan
+## Notes
 
-- Maksimal ukuran file: 5MB
-- File sementara otomatis dihapus setelah proses selesai
-- Semua proses dilakukan di memori (tidak perlu database)
-- CSV dibaca sampai 1000 baris pertama untuk sample data
-- Job tersimpan di memory (akan hilang jika server restart)
+- Maximum file size: 5MB
+- Temporary files are automatically deleted after processing completes
+- All processes are performed in memory (no database required)
+- CSV files read up to first 1000 rows for sample data
+- Jobs are stored in memory (will be lost if server restarts)
+
+## License Restrictions
+
+This code is provided for **TECHNICAL TESTING AND EVALUATION PURPOSES ONLY**.
+
+This is experimental software and is NOT intended for commercial use, production environments, or any revenue-generating activities.
+
+By using this software, you acknowledge and agree that:
+- This is experimental code provided solely for technical testing purposes
+- Commercial use is strictly prohibited
+- The software is provided "AS IS" without warranty of any kind
+- The authors are not liable for any damages arising from its use
+
+See the LICENSE file for complete terms and conditions.
